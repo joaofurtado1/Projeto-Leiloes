@@ -1,3 +1,6 @@
+
+import javax.swing.JOptionPane;
+
 public class cadastroVIEW extends javax.swing.JFrame {
 
     /**
@@ -131,21 +134,39 @@ public class cadastroVIEW extends javax.swing.JFrame {
     }//GEN-LAST:event_cadastroNomeActionPerformed
 
     private void btnCadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCadastrarActionPerformed
+        try {
         ProdutosDTO produto = new ProdutosDTO();
         String nome = cadastroNome.getText();
         String valor = cadastroValor.getText();
+
+        if (nome.isEmpty() || valor.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Por favor, preencha todos os campos.");
+            return;
+        }
+
         String status = "A Venda";
         produto.setNome(nome);
-        produto.setValor(Integer.parseInt(valor));
+        produto.setValor(Double.parseDouble(valor));
         produto.setStatus(status);
-        
+
         ProdutosDAO produtodao = new ProdutosDAO();
         produtodao.cadastrarProduto(produto);
-        
+
+        JOptionPane.showMessageDialog(null, "Produto cadastrado com sucesso!");
+
+        // Limpar os campos após cadastro
+        cadastroNome.setText("");
+        cadastroValor.setText("");
+
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(null, "Erro: Valor inválido. Por favor, insira um número válido.");
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Erro ao cadastrar o produto: " + e.getMessage());
+    }        
     }//GEN-LAST:event_btnCadastrarActionPerformed
 
     private void btnProdutosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProdutosActionPerformed
-        listagemVIEW listagem = new listagemVIEW(); 
+         listagemVIEW listagem = new listagemVIEW();
         listagem.setVisible(true);
     }//GEN-LAST:event_btnProdutosActionPerformed
 
