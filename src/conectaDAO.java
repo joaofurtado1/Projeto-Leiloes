@@ -10,7 +10,6 @@ public class conectaDAO {
         Connection conn = null;
         
         try {
-        
             conn = DriverManager.getConnection("jdbc:mysql://localhost/uc11?user=root&password=root");
             
         } catch (SQLException erro){
