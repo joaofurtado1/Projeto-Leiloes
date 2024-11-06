@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class ProdutosDAO {
+    
+    private conectaDAO conecta = new conectaDAO();
 
     Connection conn;
     PreparedStatement prep;
@@ -32,32 +34,62 @@ public class ProdutosDAO {
         }
     }
 
-    public ArrayList<ProdutosDTO> listarProdutos() {
-        try {
-            conn = new conectaDAO().connectDB();
-            String sql = "SELECT * FROM produtos"; 
-            PreparedStatement query = conn.prepareStatement(sql);
-            resultset = query.executeQuery();
+   public ArrayList<ProdutosDTO> listarProdutos() {
+        ArrayList<ProdutosDTO> listaProdutos = new ArrayList<>();
+        String sql = "SELECT * FROM produtos";
 
-            while (resultset.next()) {
+        try (Connection conn = conecta.connectDB();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
                 ProdutosDTO produto = new ProdutosDTO();
-                produto.setId(resultset.getInt("id"));
-                produto.setNome(resultset.getString("nome"));
-                produto.setValor(resultset.getDouble("valor"));
-                produto.setStatus(resultset.getString("status"));
-                
-                listagem.add(produto);
+                produto.setId(rs.getInt("id"));
+                produto.setNome(rs.getString("nome"));
+                produto.setValor(rs.getDouble("valor"));
+                produto.setStatus(rs.getString("status"));
+                listaProdutos.add(produto);
             }
-
-            resultset.close(); 
-            query.close(); 
-            conn.close(); 
-
         } catch (SQLException e) {
-            System.out.println(e);
+            System.out.println("Erro ao listar produtos: " + e.getMessage());
         }
-        
-        return listagem;
+        return listaProdutos;
+    }
+
+    public void venderProduto(int id) {
+        String sql = "UPDATE produtos SET status = 'Vendido' WHERE id = ?";
+
+        try (Connection conn = conecta.connectDB();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Erro ao vender produto: " + e.getMessage());
+        }
+    }
+
+   
+    public ArrayList<ProdutosDTO> listarProdutosVendidos() {
+        ArrayList<ProdutosDTO> listaVendidos = new ArrayList<>();
+        String sql = "SELECT * FROM produtos WHERE status = 'Vendido'";
+
+        try (Connection conn = conecta.connectDB();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                ProdutosDTO produto = new ProdutosDTO();
+                produto.setId(rs.getInt("id"));
+                produto.setNome(rs.getString("nome"));
+                produto.setValor(rs.getDouble("valor"));
+                produto.setStatus(rs.getString("status"));
+                listaVendidos.add(produto);
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao listar produtos vendidos: " + e.getMessage());
+        }
+        return listaVendidos;
     }
 }
 
